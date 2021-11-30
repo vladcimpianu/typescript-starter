@@ -14,18 +14,15 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async login(userLogin: UserLogin): Promise<boolean> {
+  async login({ username, password }: UserLogin): Promise<boolean> {
     const dbUser = await this.prismaService.user.findFirst({
-      where: { username: userLogin.username },
+      where: { username },
     });
     if (!dbUser) {
       throw new Error('User does not exist!');
     }
 
-    const isPasswordMatching = await bcrypt.compare(
-      userLogin.password,
-      dbUser.password,
-    );
+    const isPasswordMatching = await bcrypt.compare(password, dbUser.password);
 
     if (!isPasswordMatching) {
       throw new Error('Incorrect credentials!');
@@ -33,10 +30,15 @@ export class AppService {
     return isPasswordMatching;
   }
 
-  async register(data: UserRegister): Promise<User> {
+  async register({
+    password: registerPassword,
+    ...data
+  }: UserRegister): Promise<User> {
     try {
-      data.password = await bcrypt.hash(data.password, SALT_ROUNDS);
-      const user = await this.prismaService.user.create({ data });
+      const password = await bcrypt.hash(registerPassword, SALT_ROUNDS);
+      const user = await this.prismaService.user.create({
+        data: { password, ...data },
+      });
       return user;
     } catch (_err) {
       throw new Error('User could not be created');
