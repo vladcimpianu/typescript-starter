@@ -30,7 +30,7 @@ export class AppService {
     if (!isPasswordMatching) {
       throw new Error('Incorrect credentials!');
     }
-    return true;
+    return isPasswordMatching;
   }
 
   async register(data: UserRegister): Promise<User> {
