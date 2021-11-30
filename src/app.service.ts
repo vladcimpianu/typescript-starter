@@ -15,25 +15,19 @@ export class AppService {
   }
 
   async login(userLogin: UserLogin): Promise<boolean> {
-    if (userLogin.password) {
-      userLogin.password = await bcrypt.hash(userLogin.password, SALT_ROUNDS);
-    }
-    const foundUser = await this.prismaService.user.findFirst({
-      where: { username: userLogin.username, password: userLogin.password },
+    const dbUser = await this.prismaService.user.findFirst({
+      where: { username: userLogin.username },
     });
-
-    if (!foundUser) {
+    if (!dbUser) {
       throw new Error('User does not exist!');
     }
 
-    const credentialsMatch =
-      foundUser.username === userLogin.username &&
-      foundUser.password === userLogin.password;
-    if (!credentialsMatch) {
-      foundUser.isLoggedIn = true;
-    }
+    const isPasswordMatching = await bcrypt.compare(
+      userLogin.password,
+      dbUser.password,
+    );
 
-    if (credentialsMatch) {
+    if (isPasswordMatching) {
       return true;
     } else {
       throw new Error('Incorrect credentials!');
