@@ -27,11 +27,10 @@ export class AppService {
       dbUser.password,
     );
 
-    if (isPasswordMatching) {
-      return true;
-    } else {
+    if (!isPasswordMatching) {
       throw new Error('Incorrect credentials!');
     }
+    return true;
   }
 
   async register(data: UserRegister): Promise<User> {
