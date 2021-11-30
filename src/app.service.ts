@@ -19,7 +19,7 @@ export class AppService {
       userLogin.password = await bcrypt.hash(userLogin.password, SALT_ROUNDS);
     }
     const foundUser = await this.prismaService.user.findFirst({
-      where: { id: userLogin.id, password: userLogin.password },
+      where: { username: userLogin.username, password: userLogin.password },
     });
 
     if (!foundUser) {
@@ -27,7 +27,7 @@ export class AppService {
     }
 
     const credentialsMatch =
-      foundUser.id === userLogin.id &&
+      foundUser.username === userLogin.username &&
       foundUser.password === userLogin.password;
     if (!credentialsMatch) {
       foundUser.isLoggedIn = true;
