@@ -31,13 +31,13 @@ export class AppService {
   }
 
   async register({
-    password: registerPassword,
+    password: inputPassword,
     ...data
   }: UserRegister): Promise<User> {
     try {
-      const password = await bcrypt.hash(registerPassword, SALT_ROUNDS);
+      const hashedPassword = await bcrypt.hash(inputPassword, SALT_ROUNDS);
       const user = await this.prismaService.user.create({
-        data: { password, ...data },
+        data: { password: hashedPassword, ...data },
       });
       return user;
     } catch (_err) {
